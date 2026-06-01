@@ -23,6 +23,7 @@ Your job:
    - Add error handling where it's missing
    - Fix broken imports or outdated dependencies
    - Refactor a messy function (without changing behaviour)
+   - most importantly go ahead and build the project bit by bit until it's working and complete
 4. Implement each improvement one at a time
 5. Make a separate git commit for each change with a clear descriptive message
 6. Push all commits to origin
@@ -59,7 +60,7 @@ def run_agent_on_repo(name, path):
     print(f"\n{'='*50}\n  Working on: {name}\n{'='*50}\n")
 
     result = subprocess.run(
-        ["claude", "-p", CLAUDE_PROMPT],
+        ["claude", "--dangerously-skip-permissions", "-p", CLAUDE_PROMPT],
         cwd=path,
         text=True,
     )
