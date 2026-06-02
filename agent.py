@@ -31,6 +31,9 @@ Rules:
 - If the project is half-built, your job is to build the other half
 - Think big — add features, build modules, create demos
 - Do not break existing functionality
+- NEVER add Co-authored-by, Signed-off-by, or Generated-by lines to commit messages
+- NEVER mention Claude, AI, or automation anywhere in commit messages
+- Commit messages should contain ONLY the summary and description, nothing else
 - Commit message format: short summary, blank line, 1-2 sentences explaining why
 """
 
