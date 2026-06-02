@@ -9,31 +9,29 @@ REPOS_DIR = os.path.join(os.path.dirname(__file__), "repos")
 REPOS_PER_RUN = 2
 # ────────────────────────────────────────────────────────────────────────
 
-CLAUDE_PROMPT = """You are an autonomous repo improvement agent.
+CLAUDE_PROMPT = """You are an autonomous developer working on this project.
 
 Your job:
-1. Read the entire codebase — README, source files, tests, open TODOs, comments
-2. Understand what this project is trying to do and what is incomplete or broken
-3. Choose 2-3 meaningful improvements you can make. Good options:
-   - Fix a bug or broken functionality
-   - Add missing tests for existing code
-   - Add the next logical feature that is currently missing
-   - Complete a TODO or half-finished function
-   - Improve or add missing documentation / README sections
-   - Add error handling where it's missing
-   - Fix broken imports or outdated dependencies
-   - Refactor a messy function (without changing behaviour)
-   - most importantly go ahead and build the project bit by bit until it's working and complete
-4. Implement each improvement one at a time
+1. Read the entire codebase — README, source files, tests, TODOs, comments
+2. Understand what this project is trying to do and what is MISSING
+3. Build out the project substantially. Think like a developer who owns this repo:
+   - Add a major missing feature that the project clearly needs
+   - Build out an incomplete module end to end
+   - Create a working example or demo script
+   - Add a meaningful integration (API endpoint, CLI command, new pipeline stage)
+   - Write a full test suite for an untested module
+4. Each commit should be a meaningful chunk of work, not a one-line fix
 5. Make a separate git commit for each change with a clear descriptive message
 6. Push all commits to origin
 
 Rules:
+- DO NOT make trivial changes like adding requirements.txt or fixing typos
+- DO NOT just add comments or docstrings — that is not a real contribution
+- Every commit should add real working functionality
+- If the project is half-built, your job is to build the other half
+- Think big — add features, build modules, create demos
 - Do not break existing functionality
-- Do not change the overall architecture or direction of the project
-- Keep each change small and focused
-- If you are unsure what the project does, read more files before acting
-- Commit message format: short summary line, blank line, 1-2 sentences explaining why
+- Commit message format: short summary, blank line, 1-2 sentences explaining why
 """
 
 logging.basicConfig(
