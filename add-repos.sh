@@ -4,7 +4,7 @@
 
 set -e
 
-GITHUB_USERNAME="Eshaan0110"   # <-- your GitHub username
+GITHUB_USERNAME="YOUR_USERNAME"   # <-- your GitHub username
 
 REPOS=(
   # Add your repo names here, one per line:
