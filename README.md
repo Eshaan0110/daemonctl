@@ -77,7 +77,30 @@ REPOS_DIR = "path/to/your/repos"   # folder containing your repos
 REPOS_PER_RUN = 2                   # how many repos to work on per day
 ```
 
-The two prompt variables (`CLAUDE_PROMPT_FIRST_RUN` and `CLAUDE_PROMPT_WITH_MEMORY`) control what kinds of improvements the agent focuses on. Edit these to match your priorities.
+The two prompt variables (`PROMPT_FIRST` and `PROMPT_MEMORY`) control what kinds of improvements the agent focuses on. Edit these to match your priorities.
+
+## No subscription? Use a free backend
+
+`agent.py -a <agent>` picks which coding CLI drives the runs. Two free options:
+
+**Ollama (fully local, no signup):**
+```bash
+# install ollama from ollama.com, then:
+ollama pull qwen2.5-coder:7b
+pip install aider-chat
+python agent.py -a ollama
+```
+Override the model with `OLLAMA_MODEL=<name>`. Needs ~8GB RAM for a usable model.
+
+**Free API tier via aider** (Groq, Gemini, etc):
+```bash
+pip install aider-chat
+export OPENAI_API_KEY=<free-key-from-groq-or-similar>
+export OPENAI_API_BASE=https://api.groq.com/openai/v1
+export AIDER_MODEL=openai/llama-3.3-70b-versatile
+python agent.py -a aider
+```
+Get a free Groq key at console.groq.com — generous daily limits, no card required.
 
 ## How memory works
 
@@ -102,5 +125,9 @@ Each repo has a 20-minute timeout. If Claude Code takes longer, daemonctl skips 
 ## Requirements
 
 - Python 3.x
-- Claude Code (requires a Claude subscription)
 - Git with push access to your repos
+- One of:
+  - **Claude Code** (default, requires a Claude subscription)
+  - **Gemini CLI** or **Codex CLI** (require their respective subscriptions/keys)
+  - **Aider** (`pip install aider-chat`) — works with any OpenAI-compatible endpoint including free tiers
+  - **Ollama** — runs locally, no subscription, no key
