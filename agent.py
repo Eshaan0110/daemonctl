@@ -45,6 +45,14 @@ AGENTS = {
             + ["--message", prompt]
         ),
     },
+    "ollama": {
+        "name": "Ollama (via aider, local + free)",
+        "build_cmd": lambda prompt: [
+            "aider", "--yes-always",
+            "--model", f"ollama/{os.environ.get('OLLAMA_MODEL', 'qwen2.5-coder:7b')}",
+            "--message", prompt,
+        ],
+    },
 }
 
 PROMPT_FIRST = """You are a developer working on this project. First read the codebase — README, source files, tests, comments — and understand what it does and what's missing.
