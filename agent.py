@@ -39,9 +39,11 @@ AGENTS = {
     },
     "aider": {
         "name": "Aider",
-        "build_cmd": lambda prompt: [
-            "aider", "--yes-always", "--message", prompt
-        ],
+        "build_cmd": lambda prompt: (
+            ["aider", "--yes-always"]
+            + (["--model", os.environ["AIDER_MODEL"]] if os.environ.get("AIDER_MODEL") else [])
+            + ["--message", prompt]
+        ),
     },
 }
 
