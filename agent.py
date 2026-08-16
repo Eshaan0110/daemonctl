@@ -263,14 +263,29 @@ def run_agent(name, path, agent_key):
 
     head_before = _git_head(path)
 
-    result = subprocess.run(
-        agent["build_cmd"](prompt),
-        cwd=path, text=True, env=env,
-        stdout=subprocess.PIPE, stderr=None,
-    )
+    try:
+        result = subprocess.run(
+            agent["build_cmd"](prompt),
+            cwd=path, text=True, env=env,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            timeout=1200,
+            encoding="utf-8", errors="replace",
+        )
+    except subprocess.TimeoutExpired as e:
+        print(f"\n✗ {name} — timeout after 20 min")
+        if e.stdout:
+            print("--- last output ---")
+            print(e.stdout[-2000:] if isinstance(e.stdout, str) else e.stdout.decode("utf-8", "replace")[-2000:])
+        return
+    except Exception as e:
+        print(f"\n✗ {name} — subprocess error: {e}")
+        return
 
     if result.returncode != 0:
         print(f"\n✗ {name} (exit {result.returncode})")
+        if result.stdout:
+            print("--- output ---")
+            print(result.stdout[-2000:])
         return
 
     head_after = _git_head(path)
@@ -307,7 +322,11 @@ def main():
     print(f"Today's repos: {', '.join(n for n, _ in chosen)}\n")
 
     for name, path in chosen:
-        run_agent(name, path, args.agent)
+        try:
+            run_agent(name, path, args.agent)
+        except Exception as e:
+            print(f"\n✗ {name} — crashed: {e}")
+            log.exception("run_agent crash")
 
 
 if __name__ == "__main__":
