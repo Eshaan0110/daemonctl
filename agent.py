@@ -1,16 +1,42 @@
 import os
+import sys
 import random
 import subprocess
 import logging
 import argparse
+
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+
+def _git_config(key):
+    try:
+        r = subprocess.run(
+            ["git", "config", "--global", key],
+            capture_output=True, text=True, check=False,
+        )
+        return r.stdout.strip() or None
+    except Exception:
+        return None
+
 
 REPOS_DIR = os.path.join(os.path.dirname(__file__), "repos")
 MEMORY_DIR = os.path.join(os.path.dirname(__file__), "memory")
 REPOS_PER_RUN = 2
 DEFAULT_AGENT = "claude"
 
-GIT_NAME = os.environ.get("DAEMONCTL_GIT_NAME", "Eshaan0110")
-GIT_EMAIL = os.environ.get("DAEMONCTL_GIT_EMAIL", "eshaan.adyanthaya@gmail.com")
+GIT_NAME = os.environ.get("DAEMONCTL_GIT_NAME") or _git_config("user.name")
+GIT_EMAIL = os.environ.get("DAEMONCTL_GIT_EMAIL") or _git_config("user.email")
+
+if not GIT_NAME or not GIT_EMAIL:
+    sys.exit(
+        "daemonctl: cannot determine git identity.\n"
+        "Set DAEMONCTL_GIT_NAME and DAEMONCTL_GIT_EMAIL env vars,\n"
+        "or configure git: git config --global user.name '<name>' && git config --global user.email '<email>'"
+    )
 
 BANNED_TRAILER_KEYWORDS = ("claude", "anthropic")
 BANNED_BODY_SUBSTRINGS = (
@@ -272,17 +298,17 @@ def run_agent(name, path, agent_key):
             encoding="utf-8", errors="replace",
         )
     except subprocess.TimeoutExpired as e:
-        print(f"\n✗ {name} — timeout after 20 min")
+        print(f"\n[FAIL] {name} - timeout after 20 min")
         if e.stdout:
             print("--- last output ---")
             print(e.stdout[-2000:] if isinstance(e.stdout, str) else e.stdout.decode("utf-8", "replace")[-2000:])
         return
     except Exception as e:
-        print(f"\n✗ {name} — subprocess error: {e}")
+        print(f"\n[FAIL] {name} - subprocess error: {e}")
         return
 
     if result.returncode != 0:
-        print(f"\n✗ {name} (exit {result.returncode})")
+        print(f"\n[FAIL] {name} (exit {result.returncode})")
         if result.stdout:
             print("--- output ---")
             print(result.stdout[-2000:])
@@ -291,7 +317,7 @@ def run_agent(name, path, agent_key):
     head_after = _git_head(path)
 
     if head_before == head_after:
-        print(f"\n○ {name} — no commits this run")
+        print(f"\n[SKIP] {name} - no commits this run")
         save_memory(name, result.stdout)
         return
 
@@ -301,7 +327,7 @@ def run_agent(name, path, agent_key):
         log.warning(f"  scrub/push failed: {e}")
     _log_new_commits(path, head_before)
 
-    print(f"\n✓ {name}")
+    print(f"\n[OK] {name}")
     save_memory(name, result.stdout)
 
 
@@ -325,7 +351,7 @@ def main():
         try:
             run_agent(name, path, args.agent)
         except Exception as e:
-            print(f"\n✗ {name} — crashed: {e}")
+            print(f"\n[FAIL] {name} - crashed: {e}")
             log.exception("run_agent crash")
 
 
